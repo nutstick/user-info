@@ -3,10 +3,31 @@ version: '3.3'
 services:
     asset_mapping:
         build: asset_mapping
-        ports:
-            - "28017:28017"
 
     asset_mapping_seed:
         build: asset_mapping_seed
         links:
             - asset_mapping
+
+    db:
+        build: ./user_data
+
+    asset-service:
+        build: ./asset_service
+        container_name: asset_service
+        links:
+            - asset_mapping
+        depends_on:
+            - asset_mapping
+
+    users-service:
+        build: ./user_account_service
+        container_name: user_account_service
+        ports:
+            - "80:8123"
+        links:
+            - db:db
+        depends_on:
+            - db
+        environment:
+            - DATABASE_HOST=db
